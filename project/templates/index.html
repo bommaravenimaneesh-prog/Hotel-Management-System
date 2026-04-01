@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Royal Stay - Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand"><span style="font-size:1.5rem; color:var(--primary-color);">♕</span> Hotel Royal Stay</div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" id="nav-dashboard" onclick="switchView('dashboard')">Dashboard</a>
+      <a href="#" class="nav-link" id="nav-rooms" onclick="switchView('rooms')">Rooms</a>
+      <a href="#" class="nav-link" id="nav-bookings" onclick="switchView('bookings')">Bookings</a>
+      <a href="#" class="nav-link admin-only hidden" id="nav-staff" onclick="switchView('staff')">Staff Management</a>
+      <a href="#" class="nav-link guest-only hidden" id="nav-invoices" onclick="switchView('invoices')">My Invoices</a>
+      <a href="#" class="nav-link guest-only hidden" id="nav-food" onclick="switchView('food')">Room Service</a>
+      <a href="#" class="nav-link staff-only hidden" id="nav-kitchen" onclick="switchView('kitchen')">Kitchen Orders</a>
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <div id="google_translate_element"></div>
+      <span class="badge" style="background:#3b82f640;">Role: <span id="userRoleBadge">{{ user.role }}</span></span>
+      <button class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container" id="main-content">
+    
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view-section">
+      <h2 style="margin-bottom: 2rem;">Overview</h2>
+      <div class="grid admin-only hidden" id="admin-stats-grid">
+        <div class="glass-card stat-card">
+          <p class="text-muted">Total Rev. Today</p>
+          <div class="stat-value" id="stat-revenue">₹0</div>
+        </div>
+        <div class="glass-card stat-card">
+          <p class="text-muted">New Bookings</p>
+          <div class="stat-value" id="stat-bookings">0</div>
+        </div>
+        <div class="glass-card stat-card">
+          <p class="text-muted">Available Rooms</p>
+          <div class="stat-value" id="stat-available">0</div>
+        </div>
+        <div class="glass-card stat-card">
+          <p class="text-muted">Occupied Rooms</p>
+          <div class="stat-value" id="stat-occupied">0</div>
+        </div>
+      </div>
+      <div style="margin-top:2rem;">
+        <h3>Recent Live Notifications</h3>
+        <div class="glass-panel" id="live-feed" style="max-height: 300px; overflow-y: auto;">
+          <p class="text-muted">Waiting for events...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOMS VIEW -->
+    <div id="view-rooms" class="view-section hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Room Management</h2>
+        <button class="btn btn-primary staff-only hidden" onclick="toggleAddRoomModal()">+ Add New Room</button>
+      </div>
+
+      <div class="glass-panel hidden mt-2" id="add-room-modal" style="margin-bottom: 2rem;">
+        <h3>Add Room</h3>
+        <div style="display:flex; gap: 1rem;">
+          <input type="text" id="new-room-number" class="form-input" placeholder="Room No (e.g. 101)" />
+          <select id="new-room-type" class="form-input">
+            <option value="Single">Single</option>
+            <option value="Double">Double</option>
+            <option value="Deluxe">Deluxe</option>
+            <option value="Suite">Suite</option>
+          </select>
+          <input type="number" id="new-room-price" class="form-input" placeholder="Price per night ($)" />
+          <button class="btn btn-success" onclick="addRoom()">Save</button>
+        </div>
+      </div>
+
+      <div class="grid mt-2" id="rooms-grid">
+        <!-- Rooms populated via JS -->
+      </div>
+    </div>
+
+    <!-- BOOKINGS VIEW -->
+    <div id="view-bookings" class="view-section hidden">
+      <h2>Guest Bookings & Check-in <span class="badge" style="background:var(--accent-color);color:white;margin-left:1rem;">Real-Time</span></h2>
+      
+      <!-- New Booking Flow -->
+      <div class="glass-panel" style="margin-bottom: 2rem;">
+        <h3>Create Booking</h3>
+        <div style="display:flex; gap: 1rem; flex-wrap: wrap;">
+          <input type="date" id="book-start" class="form-input" style="flex:1;">
+          <input type="date" id="book-end" class="form-input" style="flex:1;">
+          <select id="book-room-id" class="form-input" style="flex:1;" required>
+            <option value="">Select Room...</option>
+          </select>
+          <select id="book-payment-type" class="form-input" style="flex:1;" required>
+            <option value="Card">Card</option>
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
+          </select>
+          <button class="btn btn-primary" onclick="createBooking()">Confirm Booking</button>
+        </div>
+      </div>
+      
+      <h3>Active Bookings</h3>
+      <div class="grid mt-2" id="bookings-grid">
+        <!-- Bookings populated via JS -->
+      </div>
+    </div>
+
+    <!-- STAFF MANAGEMENT VIEW -->
+    <div id="view-staff" class="view-section hidden admin-only">
+      <h2>Staff Management</h2>
+      <div class="glass-panel" style="margin-bottom: 2rem;">
+        <h3>Create New Staff Member</h3>
+        <p class="text-muted" style="margin-bottom: 1rem;">Only Administrators can create new Receptionist or Admin credentials.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <input type="text" id="staff-name" class="form-input" placeholder="Full Name" />
+          <input type="email" id="staff-email" class="form-input" placeholder="Staff Email Address" />
+          <input type="password" id="staff-password" class="form-input" placeholder="Assign Password" />
+          <select id="staff-role" class="form-input">
+            <option value="Receptionist">Receptionist</option>
+            <option value="Admin">Administrator</option>
+          </select>
+        </div>
+        <button class="btn btn-success mt-2" onclick="createStaff()">Create Staff Member</button>
+      </div>
+    </div>
+
+    <!-- MY INVOICES VIEW (GUEST) -->
+    <div id="view-invoices" class="view-section hidden guest-only">
+      <h2>My Invoices</h2>
+      <p class="text-muted">Review your past and current hotel bills.</p>
+      <div class="grid mt-2" id="invoices-grid"></div>
+    </div>
+
+    <!-- ROOM SERVICE VIEW (GUEST) -->
+    <div id="view-food" class="view-section hidden guest-only">
+      <h2>Room Service</h2>
+      <p class="text-muted" style="margin-bottom:2rem;">Order delicious meals directly to your room! (Requires active check-in)</p>
+      
+      <div class="glass-panel" style="margin-bottom: 2rem;">
+        <h3>Custom Order Request</h3>
+        <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">Not on the menu? Tell us what you're craving and our kitchen will prepare it (Market Price applies).</p>
+        <div style="display:flex; gap: 1rem;">
+          <input type="text" id="custom-food-request" class="form-input" style="flex:1;" placeholder="e.g. Vegan pasta without cheese..." />
+          <button class="btn btn-primary" onclick="orderCustomFood()">Order Custom Dish</button>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom: 1rem;">Our Classics</h3>
+      <div class="grid" id="food-menu-grid"></div>
+    </div>
+
+    <!-- KITCHEN ORDERS VIEW (STAFF) -->
+    <div id="view-kitchen" class="view-section hidden staff-only">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>Kitchen Orders</h2>
+          <button class="btn btn-primary" onclick="fetchKitchenOrders()">Refresh</button>
+      </div>
+      <div class="grid mt-2" id="kitchen-orders-grid"></div>
+    </div>
+
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <!-- Google Translate -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', 
+        includedLanguages: 'en,hi,te,ta,bn,mr,gu,kn,ml,pa,ur,or,as',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

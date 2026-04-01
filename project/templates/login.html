@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Royal Stay | The Premium Hotel Experience</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f172a;        /* Deep Sarovar Blue */
+      --navy-light: #1e293b;
+      --gold: #d4af37;        /* Sarovar Gold accent */
+      --gold-hover: #b5952f;
+      --gray-light: #f8fafc;
+      --gray-text: #64748b;
+      --font-serif: 'Playfair Display', serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: var(--font-sans);
+      color: #333;
+      background-color: white;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* Top Strip (Contact) */
+    .top-strip {
+      background-color: var(--navy);
+      color: white;
+      display: flex;
+      justify-content: flex-end;
+      padding: 0.4rem 5%;
+      font-size: 0.8rem;
+      gap: 1.5rem;
+    }
+    .top-strip a { color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;}
+    .top-strip a:hover { opacity: 1; color: var(--gold); }
+
+    /* Sticky Navbar */
+    .navbar {
+      background-color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 5%;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .nav-brand {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-brand span { color: var(--gold); }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    .nav-link {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--navy);
+      text-decoration: none;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: color 0.3s;
+    }
+    .nav-link:hover { color: var(--gold); }
+    .btn-login {
+      background-color: var(--gold);
+      color: white !important;
+      padding: 0.6rem 1.5rem;
+      border-radius: 4px;
+    }
+    .btn-login:hover { background-color: var(--navy); }
+
+    /* Flash Logout Messages */
+    .flash-alert {
+      background-color: #dcfce7;
+      color: #166534;
+      padding: 1rem;
+      text-align: center;
+      font-weight: 500;
+      width: 100%;
+      display: none;
+    }
+
+    /* Hero Section */
+    .hero-wrapper {
+      position: relative;
+      height: 80vh;
+      min-height: 500px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      /* Random premium hotel background, darkened slightly */
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+                  url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      z-index: -1;
+    }
+
+    /* Quick Booking Widget (Sarovar Style) */
+    .booking-widget {
+      width: 90%;
+      max-width: 1200px;
+      background: rgba(15, 23, 42, 0.9); /* Translucent Navy */
+      border-top: 4px solid var(--gold);
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem; /* lifts it above bottom edge */
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    .booking-group {
+      flex: 1;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .booking-group label {
+      color: white;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .booking-group input, .booking-group select {
+      padding: 0.8rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: white;
+      font-family: var(--font-sans);
+      outline: none;
+    }
+    .booking-group input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+    .booking-group select option { background: var(--navy); }
+    .btn-book-hero {
+      flex: 1;
+      min-width: 150px;
+      background: var(--gold);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 0.3s;
+      height: 100%;
+    }
+    .btn-book-hero:hover { background: #b5952f; }
+
+    /* Generic Section Styles */
+    .section-container {
+      padding: 5rem 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section-header h2 {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      color: var(--navy);
+      margin-bottom: 1rem;
+    }
+    .section-header p {
+      color: var(--gray-text);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .divider {
+      width: 60px;
+      height: 3px;
+      background-color: var(--gold);
+      margin: 1.5rem auto 0;
+    }
+
+    /* About Content Structure */
+    .about-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .about-content p {
+      color: #555; line-height: 1.8; font-size: 1.05rem;
+      margin-bottom: 1.5rem; max-width: 800px;
+    }
+
+    /* Happy Offerings / Facilities Grid */
+    .bg-gray-light { background-color: var(--gray-light); }
+    
+    .facilities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+    .facility-card {
+      background: white;
+      padding: 2.5rem 1.5rem;
+      border: 1px solid #eaeaea;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .facility-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+      border-color: var(--gold);
+    }
+    .facility-icon {
+      font-size: 2.5rem;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .facility-card h3 {
+      font-family: var(--font-serif);
+      color: var(--navy);
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Rooms Grid */
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+    .room-card {
+      border: 1px solid #eaeaea;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.3s;
+    }
+    .room-card:hover { box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+    .room-img-placeholder {
+      height: 220px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center; justify-content: center;
+      font-size: 3rem; color: #cbd5e1;
+    }
+    .room-card-content {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .room-card-content h3 {
+      font-family: var(--font-serif);
+      color: var(--navy);
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .room-features {
+      color: var(--gray-text);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: flex; gap: 1rem;
+    }
+    .room-price {
+      font-size: 1.4rem;
+      font-family: var(--font-sans);
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      margin-top: auto;
+    }
+    .room-price span { font-size: 0.85rem; color: var(--gray-text); font-weight: 400; }
+    
+    .btn-outline {
+      display: block; width: 100%; text-align: center;
+      padding: 0.8rem; border: 1px solid var(--navy);
+      color: var(--navy); background: white;
+      text-transform: uppercase; font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;
+      cursor: pointer; transition: 0.3s;
+    }
+    .btn-outline:hover { background: var(--navy); color: white; }
+
+    /* Deep Navy Footer */
+    .footer {
+      background-color: var(--navy);
+      color: #94a3b8;
+      padding: 4rem 5% 2rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 3rem;
+    }
+    .footer-col h3 {
+      font-family: var(--font-serif);
+      color: white;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+    .footer-col p { margin-bottom: 0.8rem; font-size: 0.95rem; line-height: 1.6;}
+    .footer-col a {
+      display: block;
+      color: #94a3b8;
+      text-decoration: none;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-bottom {
+      text-align: center;
+      padding-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    /* Auth Modal Styling (Maintained from previous, styled to fit) */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-content {
+      background: white; width: 90%; max-width: 400px;
+      padding: 2.5rem 2rem; border-top: 4px solid var(--gold);
+      position: relative; transform: translateY(20px);
+      transition: transform 0.3s;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    
+    .close-btn {
+      position: absolute; top: 1rem; right: 1.25rem;
+      background: none; border: none; font-size: 1.5rem;
+      cursor: pointer; color: #999;
+    }
+    .close-btn:hover { color: var(--navy); }
+    
+    .modal-title {
+      font-family: var(--font-serif); font-size: 1.8rem;
+      text-align: center; margin-bottom: 1.5rem; color: var(--navy);
+    }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block; margin-bottom: 0.4rem;
+      font-size: 0.85rem; font-weight: 500; color: #555;
+    }
+    .form-input {
+      width: 100%; padding: 0.75rem;
+      border: 1px solid #ddd; outline: none;
+      font-family: var(--font-sans); transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--navy); }
+    
+    .hidden { display: none !important; }
+    .btn-gold {
+      background: var(--gold); color: white; width: 100%;
+      border: none; padding: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: 0.3s; text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn-gold:hover { background: #b5952f; }
+
+    /* Toasts */
+    #toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; }
+    .toast {
+      background: white; border-left: 4px solid var(--gold);
+      color: #333; padding: 1rem 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-top: 0.5rem; animation: slideIn 0.3s forwards;
+    }
+    @keyframes slideIn { from{transform:translateX(100%);} to{transform:translateX(0);} }
+
+  </style>
+</head>
+<body>
+
+  <!-- Top Strip -->
+  <div class="top-strip" style="align-items: center;">
+    <div id="google_translate_element" style="margin-right: auto;"></div>
+    <a href="mailto:reservations@hotelroyalstay.com">reservations@hotelroyalstay.com</a>
+    <a href="tel:+1234567890">+1 234 567 890</a>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="#" class="nav-brand"><span>♕</span> Hotel Royal Stay</a>
+    <div class="nav-links">
+      <a class="nav-link" href="#about">About</a>
+      <a class="nav-link" href="#facilities">Facilities</a>
+      <a class="nav-link" href="#rooms">Our Rooms</a>
+      <a class="nav-link btn-login" onclick="openAuthModal('login')">Log In</a>
+    </div>
+  </nav>
+
+  <!-- Flash Message -->
+  <div class="flash-alert" id="logout-alert">You have been logged out securely.</div>
+
+  <!-- Hero Section & Booking Widget -->
+  <div class="hero-wrapper">
+    <div class="hero-bg"></div>
+    
+    <div class="booking-widget">
+      <div class="booking-group">
+        <label>Check In</label>
+        <input type="date">
+      </div>
+      <div class="booking-group">
+        <label>Check Out</label>
+        <input type="date">
+      </div>
+      <div class="booking-group">
+        <label>Rooms</label>
+        <select>
+          <option>1 Room</option>
+          <option>2 Rooms</option>
+          <option>3+ Rooms</option>
+        </select>
+      </div>
+      <div class="booking-group">
+        <label>Guests</label>
+        <select>
+          <option>1 Adult</option>
+          <option>2 Adults</option>
+          <option>Family</option>
+        </select>
+      </div>
+      <button class="btn-book-hero" onclick="openAuthModal('register')">Book Now</button>
+    </div>
+  </div>
+
+  <!-- About Section -->
+  <div id="about" class="section-container">
+    <div class="section-header">
+      <h2>Elevate Your Stay in Hotel Royal Stay</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="about-content">
+      <p>
+        Experience the distinct flair of premium hospitality at Hotel Royal Stay. Whether you're traveling for business or leisure, our property offers immediate access to the city's top cultural and corporate hubs. 
+      </p>
+      <p>
+        Enjoy spacious accommodations, world-class dining, and unparalleled service from the moment you check in. Our specialized guest facilities are optimized to ensure a serene, productive, and memorable visit. Let your journey of elegant living begin.
+      </p>
+    </div>
+  </div>
+
+  <!-- Facilities / Happy Offerings -->
+  <div id="facilities" class="bg-gray-light">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Happy Offerings</h2>
+        <p>A range of meticulously curated amenities designed for an effortless stay.</p>
+        <div class="divider"></div>
+      </div>
+      
+      <div class="facilities-grid">
+        <!-- Iconic Cards -->
+        <div class="facility-card">
+          <div class="facility-icon">📶</div>
+          <h3>High-Speed Wi-Fi</h3>
+          <p class="text-muted" style="color:var(--gray-text); font-size:0.9rem;">Seamless connectivity across the entire property.</p>
+        </div>
+        <div class="facility-card">
+          <div class="facility-icon">🍽️</div>
+          <h3>In-house Dining</h3>
+          <p class="text-muted" style="color:var(--gray-text); font-size:0.9rem;">Multi-cuisine global delicacies served daily.</p>
+        </div>
+        <div class="facility-card">
+          <div class="facility-icon">🛎️</div>
+          <h3>24/7 Room Service</h3>
+          <p class="text-muted" style="color:var(--gray-text); font-size:0.9rem;">Round-the-clock assistance and culinary delivery.</p>
+        </div>
+        <div class="facility-card">
+          <div class="facility-icon">🚗</div>
+          <h3>Valet Parking</h3>
+          <p class="text-muted" style="color:var(--gray-text); font-size:0.9rem;">Secure and complimentary parking for all guests.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Native Rooms Section (Replaces Modal) -->
+  <div id="rooms" class="section-container">
+    <div class="section-header">
+      <h2>Stay with Us</h2>
+      <p>Immerse yourself in comfort. Choose from our standard or premium configurations.</p>
+      <div class="divider"></div>
+    </div>
+    
+    <div id="public-rooms-grid" class="rooms-grid">
+      <!-- Injected securely via JS fetch -->
+      <p style="text-align:center; color: var(--gray-text); grid-column: 1/-1;">Loading real-time room availability...</p>
+    </div>
+  </div>
+
+  <!-- Deep Navy Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h3>Hotel Royal Stay</h3>
+        <p>Combining modern luxury with timeless service, Royal Stay is your definitive choice for an exceptional hotel experience.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Contact Info</h3>
+        <p>123 Royal Boulevard<br>Metropolis District, 45000</p>
+        <p style="margin-top: 1rem;">Phone: +1 234 567 890<br>Email: info@hotelroyalstay.com</p>
+      </div>
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <a href="#about">About Us</a>
+        <a href="#rooms">Rooms & Suites</a>
+        <a href="#facilities">Dining & Facilities</a>
+        <a href="#">Terms & Conditions</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Hotel Royal Stay Management. All Rights Reserved.
+    </div>
+  </footer>
+
+  <!-- Auth Modal (Logic Re-used) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <h2 class="modal-title" id="modal-title">Sign In</h2>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="login-email" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" class="form-input" required>
+        </div>
+        <button type="submit" class="btn-gold">Login Now</button>
+        <p style="text-align:center; font-size:0.85rem; margin-top:1rem; color: #555;">
+          Don't have an account? <a href="#" style="color:var(--navy); font-weight:600; text-decoration:none;" onclick="openAuthModal('register')">Register Here</a>
+        </p>
+      </form>
+
+      <!-- Guest Register Form -->
+      <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="reg-name" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="reg-email" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="reg-password" class="form-input" required>
+        </div>
+        <button type="submit" class="btn-gold">Create Account</button>
+        <p style="text-align:center; font-size:0.85rem; margin-top:1rem; color: #555;">
+          Already registered? <a href="#" style="color:var(--navy); font-weight:600; text-decoration:none;" onclick="openAuthModal('login')">Sign In</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- JavaScript Interaction -->
+  <script>
+    // Handle Logout query params
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('logout')) {
+      const alertBox = document.getElementById('logout-alert');
+      alertBox.style.display = 'block';
+      setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
+      window.history.replaceState({}, document.title, "/login");
+    }
+
+    // Modal Operations
+    function openAuthModal(mode) {
+      document.getElementById('auth-modal').classList.add('active');
+      document.getElementById('login-form').reset();
+      document.getElementById('register-form').reset();
+
+      if (mode === 'login') {
+        document.getElementById('modal-title').innerText = 'Sign In';
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+      } else {
+        document.getElementById('modal-title').innerText = 'Member Registration';
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('auth-modal').classList.remove('active');
+    }
+
+    // Authentication Handlers
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email, password})
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('userRole', data.role);
+          window.location.href = '/';
+        } else {
+          showToast(data.error, 'error');
+        }
+      } catch (err) {
+        showToast('Connection error.', 'error');
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const role = 'Guest';
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, email, password, role})
+        });
+        const data = await res.json();
+        if(res.ok) {
+          showToast('Registration successful! Please sign in.', 'success');
+          setTimeout(() => { openAuthModal('login'); }, 1000);
+        } else {
+          showToast(data.error, 'error');
+        }
+      } catch (err) {
+        showToast('Connection error.', 'error');
+      }
+    }
+
+    function showToast(msg, type='info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      if(type === 'error') { toast.style.borderLeftColor = 'red'; }
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Native Rooms Population (Executing on DOM Load)
+    async function renderRooms() {
+      try {
+        const res = await fetch('/api/rooms');
+        if(res.ok) {
+           const rooms = await res.json();
+           const grid = document.getElementById('public-rooms-grid');
+           grid.innerHTML = '';
+           
+           if(rooms.length === 0) {
+             grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">No rooms available currently.</p>';
+             return;
+           }
+
+           rooms.forEach(r => {
+             let imgUrl = 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80'; // standard/fallback
+             if(r.type.includes('Suite')) imgUrl = 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=500&q=80';
+             else if(r.type.includes('Deluxe')) imgUrl = 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=500&q=80';
+
+             grid.innerHTML += `
+               <div class="room-card">
+                 <div class="room-img-placeholder" style="background: url('${imgUrl}') center/cover;">
+                 </div>
+                 <div class="room-card-content">
+                   <h3>${r.type} Room</h3>
+                   <div class="room-features">
+                     <span>🛏️ ${r.type.includes('Suite') ? 'King' : 'Queen'} Bed</span>
+                     <span>📏 300 sq.ft</span>
+                   </div>
+                   <p style="color:#666; font-size:0.9rem; margin-bottom:1rem; line-height:1.5;">
+                     Experience utmost relaxation with premium bedding, high-speed Wi-Fi, and personalized services perfectly suited for your needs.
+                   </p>
+                   <div class="room-price">
+                     ₹${r.price.toFixed(2)} <span>/night</span>
+                   </div>
+                   <button class="btn-outline" onclick="openAuthModal('register')">View Details / Book</button>
+                 </div>
+               </div>
+             `;
+           });
+        }
+      } catch(e) {
+        document.getElementById('public-rooms-grid').innerHTML = '<p>Error loading rooms.</p>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", renderRooms);
+  </script>
+
+  <!-- Google Translate -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', 
+        includedLanguages: 'en,hi,te,ta,bn,mr,gu,kn,ml,pa,ur,or,as',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
